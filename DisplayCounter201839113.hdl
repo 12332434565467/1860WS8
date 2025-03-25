@@ -1,0 +1,110 @@
+CHIP DisplayCounter201839113 {
+    IN inc, reset;
+    OUT a,b,c,d,e,f,g;
+
+    PARTS:
+    Register(in=nextValue, load=true, out=currentValue,out[3]=A,out[2]=B,out[1]=C,out[0]=D);
+    Inc16(in=currentValue, out=incrementedValue);   //+1
+    Mux16(a=currentValue, b=incrementedValue, sel=inc, out=afterInc);   //+1
+	Mux16(a=afterInc, b=false, sel=reset, out=nextValue);   //reset
+
+
+    // section d
+	Not(in=A, out=notA);
+	Not(in=B, out=notB);
+	Not(in=C, out=notC);
+	Not(in=D, out=notD);
+	Or(a=notA, b=notB, out=ab1);
+	Or(a=ab1, b=C, out=abc1);
+	Or(a=abc1, b=D, out=term1);
+	Or(a=A, b=notB, out=ab2);
+	Or(a=ab2, b=C, out=abc2);
+	Or(a=abc2, b=notD, out=term2);
+	Or(a=notA, b=notC, out=ac3);
+	Or(a=ac3, b=notD, out=term3);
+	Or(a=notB, b=notC, out=bc4);
+	Or(a=bc4, b=D, out=term4);
+	And(a=term1, b=term2, out=t12);
+	And(a=t12, b=term3, out=t123);
+	And(a=t123, b=term4, out=d);
+
+	// section f
+	And(a=A, b=notB, out=AanB);
+	And(a=notA, b=B, out=nAaB);
+	Or(a=AanB, b=nAaB, out=AB);
+	Or(a=notC, b=notA, out=or1);
+	And(a=D,b=or1,out=andQ);
+	//And(a=D,b=or1,out=andQ);  
+	And(a=notC, b=notA, out=nCanA);
+	Or(a=AB, b=andQ, out=or2);
+	Or(a=or2, b=nCanA, out=f);
+
+	// section b
+	And(a=notA, b=C, out=And1);
+	And(a=C, b=B, out=And2);
+	And(a=notD, b=A, out=And3);
+	And(a=notC, b=A, out=notCAndA);
+	And(a=notCAndA, b=notB, out=and4);
+	And(a=notB, b=notC, out=notBandNotC);
+	And(a=notBandNotC, b=notD, out=and5);
+	And(a=notC, b=D, out=notCAndD);
+	And(a=notA, b=B, out=notAAndB);
+	And(a=notCAndD, b=notAAndB, out=and6);
+	Or(a=And1, b=And2, out=Or1);
+	Or(a=Or1, b=And3, out=Or2);
+	Or(a=Or2, b=and4, out=Or3);
+	Or(a=Or3, b=and5, out=Or4);
+	Or(a=Or4, b=and6, out=b);
+
+	// section e
+	And(a=notC, b=notD, out=s1);
+    And(a=A, b=notB, out=s2);
+    And(a=notA, b=B, out=s3);
+    And(a=s3, b=notC, out=s4);
+    And(a=A, b=B, out=s5);
+	And(a=s5, b=C, out=s6);
+	And(a=B, b=C, out=s7);
+	And(a=s7, b=notD, out=s8);
+	Or(a=s1, b=s2, out=s9);
+	Or(a=s9, b=s4, out=s10);
+	Or(a=s10, b=s6, out=s11);
+	Or(a=s11, b=s8, out=e);
+   
+	//section c
+	Or(a=C,b=notD,out=CandNOTD);
+	Or(a=B,b=CandNOTD,out=pa);
+	Or(a=notB,b=A,out=NotBandA);
+	Or(a=C,b=NotBandA,out=pb);
+	Or(a=notD,b=A,out=pc);
+	And(a=pa,b=pb,out=pd);
+	And(a=pd,b=pc,out=c);
+
+	//section a
+    And(a=notA, b=notB, out=m1);
+    And(a=m1, b=C, out=n1);
+    And(a=C, b=notD, out=n2);
+    And(a=notA, b=B, out=m2);
+    And(a=m2, b=notC, out=n3);
+    And(a=A, b=notB, out=n4);
+    And(a=A, b=D, out=n5);
+    Or(a=n1, b=n2, out=o1);
+    Or(a=n3, b=n4, out=o2);
+    Or(a=o1, b=o2, out=o3);
+    Or(a=o3, b=n5, out=a);
+
+	//section g
+	Or(a=A, b=notB, out=ab11);
+	Or(a=ab11, b=C, out=abc11);
+	Or(a=abc11, b=D, out=P1);
+	Or(a=A, b=B, out=ab22);
+	Or(a=ab22, b=C, out=abc22);
+	Or(a=abc22, b=notD, out=P2);
+	Or(a=notB, b=notC, out=bc33);
+	Or(a=bc33, b=notD, out=P3);
+	Or(a=notA, b=B, out=ab44);
+	Or(a=ab44, b=notC, out=abc44);
+	Or(a=abc44, b=D, out=P4);
+	And(a=P1, b=P2, out=PART1);
+	And(a=PART1, b=P3, out=PART2);
+	And(a=PART2, b=P4, out=g);
+}
